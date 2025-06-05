@@ -13,6 +13,8 @@ public class NotepadGUI extends JFrame {
     private JFileChooser fileChooser;
 
     private JTextArea textArea;
+    public JTextArea getTextArea() {return textArea;}
+
     private File currentFile;
 
     // swing's built it in library for "undo" and "redo"
@@ -44,7 +46,9 @@ public class NotepadGUI extends JFrame {
                 undoManager.addEdit(e.getEdit());
             }
         });
-        add(textArea, BorderLayout.CENTER);
+
+        JScrollPane scrollPane = new JScrollPane(textArea);
+        add(scrollPane, BorderLayout.CENTER);
     }
 
     private void addToolbar() {
@@ -54,8 +58,10 @@ public class NotepadGUI extends JFrame {
         JMenuBar menuBar = new JMenuBar();
         toolBar.add(menuBar);
 
+        // menu buttons for GUI
         menuBar.add(addFileMenu());
         menuBar.add(addEditMenu());
+        menuBar.add(addFormatMenu());
 
         add(toolBar, BorderLayout.NORTH);
     }
@@ -231,5 +237,64 @@ public class NotepadGUI extends JFrame {
         editMenu.add(redoMenuItem);
 
         return editMenu;
+    }
+
+    private JMenu addFormatMenu() {
+        JMenu formatMenu = new JMenu("Format");
+
+        // word wrap function
+        JCheckBoxMenuItem wordWrapMenuItem = new JCheckBoxMenuItem("Word Wrap");
+        wordWrapMenuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                boolean isChecked = wordWrapMenuItem.getState();
+                if(isChecked){
+                    textArea.setLineWrap(true);
+                    textArea.setWrapStyleWord(true);
+                } else {
+                    textArea.setLineWrap(false);
+                    textArea.setWrapStyleWord(false);
+                }
+            }
+        });
+        formatMenu.add(wordWrapMenuItem);
+
+        // text align function
+        JMenu alignTextMenu = new JMenu("Align Text");
+
+        // align text to the left
+        JMenuItem alignTextLeftMenuItem = new JMenuItem("Left");
+        alignTextLeftMenuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                textArea.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
+            }
+        });
+        alignTextMenu.add(alignTextLeftMenuItem);
+
+        // align text to the right
+        JMenuItem alignTextRightMenuItem = new JMenuItem("Right");
+        alignTextRightMenuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                textArea.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
+            }
+        });
+        alignTextMenu.add(alignTextRightMenuItem);
+
+        formatMenu.add(alignTextMenu);
+
+        // font format function
+        JMenuItem fontMenuItem = new JMenuItem("Font Format");
+        fontMenuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // open font dialog
+                new FontMenu(NotepadGUI.this).setVisible(true);
+            }
+        });
+        formatMenu.add(fontMenuItem);
+
+        return formatMenu;
     }
 }
