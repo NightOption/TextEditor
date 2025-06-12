@@ -62,6 +62,7 @@ public class NotepadGUI extends JFrame {
         menuBar.add(addFileMenu());
         menuBar.add(addEditMenu());
         menuBar.add(addFormatMenu());
+        menuBar.add(addViewMenu());
 
         add(toolBar, BorderLayout.NORTH);
     }
@@ -296,5 +297,55 @@ public class NotepadGUI extends JFrame {
         formatMenu.add(fontMenuItem);
 
         return formatMenu;
+    }
+
+    private JMenu addViewMenu() {
+        JMenu viewMenu = new JMenu("View");
+
+        JMenu zoomMenu = new JMenu("Zoom");
+
+        JMenuItem zoomInMenuItem = new JMenuItem("Zoom in");
+        zoomInMenuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Font currentFont = textArea.getFont();
+                textArea.setFont(new Font(
+                        currentFont.getName(),
+                        currentFont.getStyle(),
+                        currentFont.getSize() + 1));
+            }
+        });
+        zoomMenu.add(zoomInMenuItem);
+
+        JMenuItem zoomOutMenuItem = new JMenuItem("Zoom out");
+        zoomOutMenuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Font currentFont = textArea.getFont();
+                textArea.setFont(new Font(
+                        currentFont.getName(),
+                        currentFont.getStyle(),
+                        currentFont.getSize() - 1));
+            }
+        });
+        zoomMenu.add(zoomOutMenuItem);
+
+        JMenuItem zoomRestoreMenuItem = new JMenuItem("Default zoom");
+        zoomRestoreMenuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Font currentFont = textArea.getFont();
+                textArea.setFont(new Font(
+                        currentFont.getName(),
+                        currentFont.getStyle(),
+                        12
+                ));
+            }
+        });
+        zoomMenu.add(zoomRestoreMenuItem);
+
+        viewMenu.add(zoomMenu);
+
+        return viewMenu;
     }
 }
