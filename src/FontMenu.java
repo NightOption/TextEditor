@@ -1,11 +1,16 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 public class FontMenu extends JDialog {
     // reference to the GUI so that changes could be made from this class
     private NotepadGUI source;
+
+    private JTextField currentFontField, currentFontStyleField, currentFontSizeField;
+    private JPanel currentColorBox;
 
     public FontMenu(NotepadGUI source) {
         this.source = source;
@@ -27,6 +32,57 @@ public class FontMenu extends JDialog {
         addFontChooser();
         addFontStyleChooser();
         addFontSizeChooser();
+        addFontColorChooser();
+
+        // apply button for the changes to take effect
+        JButton applyButton = new JButton("Apply");
+        applyButton.setBounds(230, 265, 75, 25);
+        applyButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String fontType = currentFontField.getText();
+
+                int fontStyle;
+                switch (currentFontStyleField.getText()) {
+                    case "Plain":
+                        fontStyle = Font.PLAIN;
+                        break;
+                    case "Bold":
+                        fontStyle = Font.BOLD;
+                        break;
+                    case "Italic":
+                        fontStyle = Font.ITALIC;
+                        break;
+                    default:
+                        fontStyle = Font.BOLD | Font.ITALIC;
+                        break;
+                }
+
+                int fontSize = Integer.parseInt(currentFontSizeField.getText());
+
+                Color fontColor = currentColorBox.getBackground();
+
+                Font newFont = new Font(fontType, fontStyle, fontSize);
+
+                source.getTextArea().setFont(newFont);
+
+                source.getTextArea().setForeground(fontColor);
+
+                FontMenu.this.dispose();
+            }
+        });
+        add(applyButton);
+
+        // cancel button to revert changes and close menu
+        JButton cancelButton = new JButton("Cancel");
+        cancelButton.setBounds(315, 265, 75, 25);
+        cancelButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                FontMenu.this.dispose();
+            }
+        });
+        add(cancelButton);
     }
 
     private void addFontChooser() {
@@ -37,7 +93,7 @@ public class FontMenu extends JDialog {
         JPanel fontPanel = new JPanel();
         fontPanel.setBounds(10, 15, 125, 160);
 
-        JTextField currentFontField = new JTextField(source.getTextArea().getFont().getFontName());
+        currentFontField = new JTextField(source.getTextArea().getFont().getFontName());
         currentFontField.setPreferredSize(new Dimension(125, 25));
         currentFontField.setEditable(false);
         fontPanel.add(currentFontField);
@@ -115,7 +171,7 @@ public class FontMenu extends JDialog {
                 break;
         }
 
-        JTextField currentFontStyleField = new JTextField(currentFontStyleText);
+        currentFontStyleField = new JTextField(currentFontStyleText);
         currentFontStyleField.setPreferredSize(new Dimension(125, 25));
         currentFontStyleField.setEditable(false);
         fontStylePanel.add(currentFontStyleField);
@@ -229,5 +285,68 @@ public class FontMenu extends JDialog {
         JLabel fontSizeLabel = new JLabel("Font Size: ");
         fontSizeLabel.setBounds(275, 5, 125, 10);
         add(fontSizeLabel);
+
+        JPanel fontSizePanel = new JPanel();
+        fontSizePanel.setBounds(275, 15, 125, 160);
+
+        currentFontSizeField = new JTextField(Integer.toString(source.getTextArea().getFont().getSize()));
+        currentFontSizeField.setPreferredSize(new Dimension(125, 25));
+        currentFontSizeField.setEditable(false);
+        fontSizePanel.add(currentFontSizeField);
+
+        // shows the list of font sizes
+        JPanel listOfFontSizesPanel = new JPanel();
+        listOfFontSizesPanel.setLayout(new BoxLayout(listOfFontSizesPanel, BoxLayout.Y_AXIS));
+        listOfFontSizesPanel.setBackground(Color.WHITE);
+
+        for(int i = 8; i <= 72; i+= 2) {
+            JLabel fontSizeValueLabel = new JLabel(Integer.toString(i));
+            fontSizeValueLabel.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    currentFontSizeField.setText(fontSizeValueLabel.getText());
+                }
+
+                @Override
+                public void mouseEntered(MouseEvent e) {
+                    fontSizeValueLabel.setOpaque(true);
+                    fontSizeValueLabel.setBackground(Color.BLUE);
+                    fontSizeValueLabel.setForeground(Color.WHITE);
+                }
+
+                @Override
+                public void mouseExited(MouseEvent e) {
+                    fontSizeValueLabel.setBackground(null);
+                    fontSizeValueLabel.setForeground(null);
+                }
+            });
+
+            listOfFontSizesPanel.add(fontSizeValueLabel);
+        }
+        JScrollPane scrollPane = new JScrollPane(listOfFontSizesPanel);
+        scrollPane.setPreferredSize(new Dimension(125, 125));
+        fontSizeLabel.add(scrollPane);
+;
+        add(fontSizePanel);
+    }
+
+    private void addFontColorChooser() {
+        // displays the currently selected color of the text
+        currentColorBox = new JPanel();
+        currentColorBox.setBounds(175, 200, 23, 23);
+        currentColorBox.setBackground(source.getTextArea().getForeground());
+        currentColorBox.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        add(currentColorBox);
+
+        JButton chooseColorButton = new JButton("Choose Color");
+        chooseColorButton.setBounds(10, 200, 150, 25);
+        chooseColorButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Color c = JColorChooser.showDialog(null, "Select a color", Color.BLACK);
+                currentColorBox.setBackground(c);
+            }
+        });
+        add(chooseColorButton);
     }
 }
